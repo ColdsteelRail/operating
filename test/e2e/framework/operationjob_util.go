@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"sort"
 
+	kruisev1alpha1 "github.com/openkruise/kruise/apis/apps/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -96,7 +97,7 @@ func (t *OperationJobTester) DeleteOperationJob(oj *appsv1alpha1.OperationJob) e
 
 func (t *OperationJobTester) ListPodsForOperationJobTester(oj *appsv1alpha1.OperationJob) (pods []*v1.Pod, err error) {
 	podList := &v1.PodList{}
-	if err = t.client.List(context.TODO(), podList); err != nil {
+	if err = t.client.List(context.TODO(), podList, client.InNamespace(oj.Namespace)); err != nil {
 		return nil, err
 	}
 	for i := range podList.Items {
@@ -126,4 +127,11 @@ func (t *OperationJobTester) UpdatePod(pod *v1.Pod, fn func(pod *v1.Pod)) error 
 		err = t.client.Update(context.TODO(), pod)
 		return err
 	})
+}
+
+func (t *OperationJobTester) GetForOperationJobTester(oj *appsv1alpha1.OperationJob, pod *v1.Pod) (CRR *kruisev1alpha1.ContainerRecreateRequest, err error) {
+	CRR = &kruisev1alpha1.ContainerRecreateRequest{}
+	crrName := fmt.Sprintf("%s-%s", oj.Name, pod.Name)
+	err = t.client.Get(context.TODO(), types.NamespacedName{Namespace: oj.Namespace, Name: crrName}, CRR)
+	return CRR, err
 }
