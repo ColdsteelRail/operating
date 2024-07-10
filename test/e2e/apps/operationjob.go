@@ -331,8 +331,6 @@ var _ = SIGDescribe("OperationJob", func() {
 
 			By("Wait for recreate OperationJob Succeeded")
 			Eventually(func() error { return ojTester.ExpectOperationJobProgress(oj, appsv1alpha1.OperationProgressSucceeded) }, 30*time.Second, 3*time.Second).ShouldNot(HaveOccurred())
-			pods, err = clsTester.ListPodsForCollaSet(cls)
-			Expect(err).NotTo(HaveOccurred())
 
 			By("Check restartCount of pods")
 			pods, err = clsTester.ListPodsForCollaSet(cls)
